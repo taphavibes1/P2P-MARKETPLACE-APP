@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthNavigator from './AuthNavigator';
 import MainTabNavigator from './MainTabNavigator';
 import UploadIdScreen from '../screens/auth/UploadIdScreen';
+import ListingDetailScreen from '../screens/home/ListingDetailScreen';
 import LoadingScreen from '../components/common/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
@@ -21,6 +22,7 @@ export default function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />
       <Stack.Screen name="UploadId" component={UploadIdScreen} />
+      <Stack.Screen name="ListingDetail" component={ListingDetailScreen} />
     </Stack.Navigator>
   );
 }
