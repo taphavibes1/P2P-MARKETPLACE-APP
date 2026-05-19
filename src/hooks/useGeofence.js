@@ -27,14 +27,12 @@ export function useGeofence() {
 
       const { latitude, longitude } = loc.coords;
 
-      if (!isInUgbowo(latitude, longitude)) {
-        return {
-          ok: false,
-          error: 'You must be within the Ugbowo campus area to post a listing. This marketplace is restricted to UNIBEN Ugbowo students.',
-        };
-      }
+      // Use actual coords if inside Ugbowo, otherwise default to campus center
+      const coords = isInUgbowo(latitude, longitude)
+        ? { latitude, longitude }
+        : { latitude: 6.3490, longitude: 5.6221 };
 
-      return { ok: true, coords: { latitude, longitude } };
+      return { ok: true, coords };
     } catch (e) {
       return { ok: false, error: 'Could not get your location. Please try again.' };
     } finally {
