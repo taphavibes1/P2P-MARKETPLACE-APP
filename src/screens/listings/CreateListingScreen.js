@@ -107,15 +107,19 @@ export default function CreateListingScreen({ navigation }) {
     }
 
     try {
-      // 2. Upload photos
+      // 2. Upload photos — skip silently if Storage isn't enabled
       let imageUrls = [];
       if (photos.length > 0) {
-        showToast('Uploading photos...', 'info');
-        imageUrls = await uploadListingImages(photos, user.uid);
+        try {
+          showToast('Uploading photos...', 'info');
+          imageUrls = await uploadListingImages(photos, user.uid);
+        } catch (uploadErr) {
+          console.warn('Photo upload skipped:', uploadErr?.message);
+          showToast('Photos skipped (Storage not enabled). Listing will post without images.', 'warning');
+        }
       }
 
       // 3. Create listing document
-      const locationLabel = 'Ugbowo, UNIBEN';
       await createListing(
         {
           title: form.title.trim(),
@@ -128,7 +132,7 @@ export default function CreateListingScreen({ navigation }) {
             latitude: geoResult.coords.latitude,
             longitude: geoResult.coords.longitude,
           },
-          locationLabel,
+          locationLabel: 'Ugbowo, UNIBEN',
         },
         user.uid,
       );
@@ -136,7 +140,11 @@ export default function CreateListingScreen({ navigation }) {
       showToast('Listing posted successfully!', 'success');
       setTimeout(() => navigation.goBack(), 1200);
     } catch (err) {
-      showToast('Failed to post listing. Please try again.', 'error');
+      console.error('Create listing error:', err);
+      const msg = err?.code === 'permission-denied'
+        ? 'Permission denied — make sure Firestore rules allow writes (set test mode in Firebase Console).'
+        : `Failed to post: ${err?.message ?? err}`;
+      showToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }
