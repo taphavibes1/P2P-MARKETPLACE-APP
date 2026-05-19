@@ -8,10 +8,10 @@ import { db } from '../firebase/config';
 const PAGE_SIZE = 20;
 
 export async function fetchListings({ category, search, lastDoc } = {}) {
+  // No orderBy — avoids composite index requirement; sort client-side instead
   let q = query(
     collection(db, 'listings'),
     where('status', '==', 'available'),
-    orderBy('createdAt', 'desc'),
     limit(PAGE_SIZE),
   );
 
@@ -20,27 +20,24 @@ export async function fetchListings({ category, search, lastDoc } = {}) {
       collection(db, 'listings'),
       where('status', '==', 'available'),
       where('category', '==', category),
-      orderBy('createdAt', 'desc'),
       limit(PAGE_SIZE),
     );
   }
 
-  if (lastDoc) {
-    q = query(q, startAfter(lastDoc));
+  const snap = await getDocs(q);
+  let listings = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+
+  if (search) {
+    listings = listings.filter(l =>
+      l.title?.toLowerCase().includes(search.toLowerCase()) ||
+      l.description?.toLowerCase().includes(search.toLowerCase())
+    );
   }
 
-  const snap = await getDocs(q);
-  const listings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  const filtered = search
-    ? listings.filter(l =>
-        l.title?.toLowerCase().includes(search.toLowerCase()) ||
-        l.description?.toLowerCase().includes(search.toLowerCase())
-      )
-    : listings;
-
   return {
-    listings: filtered,
+    listings,
     lastDoc: snap.docs[snap.docs.length - 1] ?? null,
     hasMore: snap.docs.length === PAGE_SIZE,
   };
