@@ -259,13 +259,23 @@ export default function ListingDetailScreen({ route, navigation }) {
 
       {isOwnListing && (
         <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.editBtn}
-            onPress={() => navigation.navigate('EditListing', { listingId })}
-          >
-            <Ionicons name="create-outline" size={18} color={COLORS.primary} />
-            <Text style={styles.msgBtnText}>Edit Listing</Text>
-          </TouchableOpacity>
+          {listing.status === 'reserved' ? (
+            <TouchableOpacity
+              style={styles.buyBtn}
+              onPress={() => navigation.navigate('SellerQR', { listingId })}
+            >
+              <Ionicons name="qr-code" size={18} color="#FFF" />
+              <Text style={styles.buyBtnText}>Show My QR Code</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.editBtn}
+              onPress={() => navigation.navigate('EditListing', { listingId })}
+            >
+              <Ionicons name="create-outline" size={18} color={COLORS.primary} />
+              <Text style={styles.msgBtnText}>Edit Listing</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </SafeAreaView>
