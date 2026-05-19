@@ -16,7 +16,7 @@
     "expo-location": "~18.1.5",
     "expo-camera": "~16.1.6",
     "expo-file-system": "~18.1.1",
-    "react": "18.3.2",
+    "react": "19.0.0",
     "react-native": "0.79.2",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
