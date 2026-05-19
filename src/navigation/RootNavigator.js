@@ -6,6 +6,7 @@ import MainTabNavigator from './MainTabNavigator';
 import UploadIdScreen from '../screens/auth/UploadIdScreen';
 import ListingDetailScreen from '../screens/home/ListingDetailScreen';
 import CreateListingScreen from '../screens/listings/CreateListingScreen';
+import ChatThreadScreen from '../screens/chat/ChatThreadScreen';
 import LoadingScreen from '../components/common/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
@@ -25,6 +26,7 @@ export default function RootNavigator() {
       <Stack.Screen name="UploadId" component={UploadIdScreen} />
       <Stack.Screen name="ListingDetail" component={ListingDetailScreen} />
       <Stack.Screen name="CreateListing" component={CreateListingScreen} />
+      <Stack.Screen name="ChatThread" component={ChatThreadScreen} />
     </Stack.Navigator>
   );
 }

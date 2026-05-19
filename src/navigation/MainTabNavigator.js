@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/home/HomeScreen';
-import ChatsScreen from '../screens/placeholder/ChatsScreen';
+import ChatsListScreen from '../screens/chat/ChatsListScreen';
 import MapScreen from '../screens/placeholder/MapScreen';
 import ProfileScreen from '../screens/placeholder/ProfileScreen';
 import { COLORS, SIZES, SHADOWS } from '../constants/theme';
@@ -43,7 +43,7 @@ export default function MainTabNavigator() {
       />
       <Tab.Screen
         name="Chats"
-        component={ChatsScreen}
+        component={ChatsListScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="chatbubbles" focused={focused} label="Chats" />,
         }}
