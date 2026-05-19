@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "splash": {
       "backgroundColor": "#1A237E"
     },
@@ -24,14 +25,18 @@
       },
       "package": "com.ugbowomarket.app",
       "permissions": [
-        "CAMERA",
-        "ACCESS_FINE_LOCATION",
-        "READ_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.READ_EXTERNAL_STORAGE"
       ]
     },
     "plugins": [
-      "expo-camera",
-      "expo-barcode-scanner",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Used to scan QR codes and take listing photos"
+        }
+      ],
       [
         "expo-location",
         {
