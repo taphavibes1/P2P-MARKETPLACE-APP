@@ -1,6 +1,7 @@
 import {
   collection, query, where, orderBy, getDocs,
-  getDoc, doc, limit, startAfter,
+  getDoc, doc, limit, startAfter, addDoc, updateDoc,
+  deleteDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
@@ -31,7 +32,6 @@ export async function fetchListings({ category, search, lastDoc } = {}) {
   const snap = await getDocs(q);
   const listings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // Client-side search filter (Firestore doesn't support full-text)
   const filtered = search
     ? listings.filter(l =>
         l.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -56,4 +56,35 @@ export async function fetchSellerProfile(sellerId) {
   const snap = await getDoc(doc(db, 'users', sellerId));
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() };
+}
+
+export async function createListing(data, userId) {
+  const ref = await addDoc(collection(db, 'listings'), {
+    ...data,
+    sellerId: userId,
+    status: 'available',
+    createdAt: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+export async function updateListing(listingId, data) {
+  await updateDoc(doc(db, 'listings', listingId), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteListing(listingId) {
+  await deleteDoc(doc(db, 'listings', listingId));
+}
+
+export async function fetchMyListings(userId) {
+  const q = query(
+    collection(db, 'listings'),
+    where('sellerId', '==', userId),
+    orderBy('createdAt', 'desc'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }

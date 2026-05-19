@@ -31,7 +31,7 @@ A hyper-local P2P student marketplace for UNIBEN Ugbowo students in Benin City, 
 - [x] Step 1: Project setup + navigation + theme
 - [x] Step 2: Auth screens + registration + ID upload
 - [x] Step 3: Home + listings (browse only)
-- [ ] Step 4: Create listing + image upload + geofence
+- [x] Step 4: Create listing + image upload + geofence
 - [ ] Step 5: Chat system
 - [ ] Step 6: Map with safe zones
 - [ ] Step 7: Escrow payment flow + QR
