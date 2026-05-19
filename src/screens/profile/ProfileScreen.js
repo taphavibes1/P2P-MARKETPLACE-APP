@@ -240,7 +240,7 @@ const pStyles = StyleSheet.create({
 const TABS = ['Listings', 'Purchases'];
 
 export default function ProfileScreen({ navigation }) {
-  const { user, userProfile, logout, refreshProfile } = useAuth();
+  const { user, userProfile, profileError, loading: authLoading, logout, refreshProfile } = useAuth();
   const { toast, showToast, hideToast } = useToast();
   const [tab, setTab] = useState(0);
   const [listings, setListings] = useState([]);
@@ -348,9 +348,31 @@ export default function ProfileScreen({ navigation }) {
   if (!userProfile) {
     return (
       <SafeAreaView style={styles.safe}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={{ fontSize: 14, color: COLORS.textSecondary }}>Loading profile…</Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16, padding: SIZES.lg }}>
+          {profileError ? (
+            <>
+              <Ionicons name="cloud-offline-outline" size={48} color={COLORS.error} />
+              <Text style={{ fontSize: 16, fontWeight: '700', color: COLORS.textPrimary, textAlign: 'center' }}>
+                Could not load profile
+              </Text>
+              <Text style={{ fontSize: 13, color: COLORS.textSecondary, textAlign: 'center' }}>
+                {profileError.includes('permission') || profileError.includes('PERMISSION_DENIED')
+                  ? 'Firestore rules are blocking reads.\nGo to Firebase Console → Firestore → Rules and set test mode.'
+                  : `Error: ${profileError}`}
+              </Text>
+              <TouchableOpacity
+                style={{ backgroundColor: COLORS.primary, borderRadius: SIZES.borderRadiusFull, paddingHorizontal: SIZES.xl, paddingVertical: SIZES.md }}
+                onPress={refreshProfile}
+              >
+                <Text style={{ color: '#FFF', fontWeight: '700' }}>Retry</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Text style={{ fontSize: 14, color: COLORS.textSecondary }}>Loading profile…</Text>
+            </>
+          )}
         </View>
       </SafeAreaView>
     );

@@ -13,6 +13,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [profileError, setProfileError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setProfileError(error?.code || error?.message || 'unknown');
     }
   };
 
@@ -95,7 +97,7 @@ export function AuthProvider({ children }) {
   const refreshProfile = () => fetchUserProfile(user?.uid);
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, login, register, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, userProfile, profileError, loading, login, register, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
