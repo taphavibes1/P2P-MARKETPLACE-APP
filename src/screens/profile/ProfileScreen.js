@@ -16,6 +16,7 @@ import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
 import { VERIFICATION_STATUS, LISTING_STATUS, PAYMENT_STATUS } from '../../constants';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import { seedDemoData } from '../../services/seedService';
 
 // ─── Star Picker ─────────────────────────────────────────────────────────────
 function StarPicker({ value, onChange, size = 32 }) {
@@ -326,6 +327,29 @@ export default function ProfileScreen({ navigation }) {
     ]);
   };
 
+  const handleSeedDemo = () => {
+    Alert.alert(
+      'Load Demo Data',
+      'This will add demo listings, a chat conversation, and sample payments to your account so you can test all features.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Load Demo Data',
+          onPress: async () => {
+            try {
+              showToast('Loading demo data…', 'info');
+              await seedDemoData(user);
+              await loadData({ refresh: true });
+              showToast('Demo data loaded! Check Home, Chats & Purchases.', 'success');
+            } catch (e) {
+              showToast(`Failed: ${e?.message ?? e}`, 'error');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const verificationStatus = userProfile?.verificationStatus;
   const isVerified = verificationStatus === VERIFICATION_STATUS.VERIFIED;
   const isPending = verificationStatus === VERIFICATION_STATUS.PENDING;
@@ -571,6 +595,12 @@ export default function ProfileScreen({ navigation }) {
             )
           )}
         </View>
+
+        {/* Dev: seed demo data */}
+        <TouchableOpacity style={styles.seedBtn} onPress={handleSeedDemo}>
+          <Ionicons name="flask-outline" size={15} color={COLORS.textSecondary} />
+          <Text style={styles.seedBtnText}>Load Demo Data (Dev)</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <RatingModal
@@ -667,4 +697,10 @@ const styles = StyleSheet.create({
     marginTop: SIZES.md, ...SHADOWS.small,
   },
   ctaBtnText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+  seedBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 6, padding: SIZES.lg, marginTop: SIZES.sm,
+    borderTopWidth: 1, borderTopColor: COLORS.divider,
+  },
+  seedBtnText: { fontSize: 13, color: COLORS.textSecondary },
 });
