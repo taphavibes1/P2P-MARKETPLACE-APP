@@ -5,7 +5,7 @@ import { getStorage } from 'firebase/storage';
 
 // Replace with your Firebase project config
 const firebaseConfig = {
-  apiKey: "FIREBASE_API_KEY",
+  apiKey: "AIzaSyA1TFHSoYhbKtIhDbUysLA2Gu5un0kEtws",
  
   authDomain: "{
   "project_info": {
@@ -46,10 +46,10 @@ const firebaseConfig = {
   ],
   "configuration_version": "1"
 }",
-  projectId: "FIREBASE_PROJECT_ID",
+  projectId: "p2p-marketplace-92895",
   storageBucket: "FIREBASE_STORAGE_BUCKET",
   messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
-  appId: "FIREBASE_APP_ID",
+  appId: "1:1034362432289:android:296321588887de27e06c60",
 };
 
 const app = initializeApp(firebaseConfig);
