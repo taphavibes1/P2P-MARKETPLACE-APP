@@ -337,10 +337,21 @@ export default function ProfileScreen({ navigation }) {
   const avgRating = userProfile?.rating ?? 0;
   const totalRatings = userProfile?.totalRatings ?? 0;
 
-  if (!user || !userProfile) {
+  if (!user) {
     return (
       <SafeAreaView style={styles.safe}>
         <EmptyState icon="person-circle-outline" title="Not signed in" message="Sign in to view your profile." />
+      </SafeAreaView>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={{ fontSize: 14, color: COLORS.textSecondary }}>Loading profile…</Text>
+        </View>
       </SafeAreaView>
     );
   }

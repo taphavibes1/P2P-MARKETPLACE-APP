@@ -13,10 +13,12 @@ import VerificationBanner from '../../components/common/VerificationBanner';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { MOCK_LISTINGS } from '../../constants/mockListings';
 
 export default function HomeScreen({ navigation }) {
   const { userProfile } = useAuth();
   const [listings, setListings] = useState([]);
+  const [isDemo, setIsDemo] = useState(false);
   const [category, setCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -40,10 +42,14 @@ export default function HomeScreen({ navigation }) {
         search,
         lastDoc: more ? lastDoc : null,
       });
+      const fetched = result.listings;
+      // Fall back to demo listings when Firestore is empty and no filter is active
+      const useMock = fetched.length === 0 && !search && (!category || category === 'all');
       if (more) {
-        setListings(prev => [...prev, ...result.listings]);
+        setListings(prev => [...prev, ...fetched]);
       } else {
-        setListings(result.listings);
+        setListings(useMock ? MOCK_LISTINGS : fetched);
+        setIsDemo(useMock);
       }
       setLastDoc(result.lastDoc);
       setHasMore(result.hasMore);
@@ -134,6 +140,13 @@ export default function HomeScreen({ navigation }) {
       {/* Category filter */}
       <CategoryFilter selected={category} onSelect={(c) => { setCategory(c); setLastDoc(null); }} />
 
+      {isDemo && !loading && (
+        <View style={styles.demoBanner}>
+          <Ionicons name="information-circle-outline" size={14} color={COLORS.primary} />
+          <Text style={styles.demoBannerText}>Sample listings — be the first to post a real item!</Text>
+        </View>
+      )}
+
       {/* Content */}
       {loading ? (
         <View style={styles.centerLoader}>
@@ -214,4 +227,15 @@ const styles = StyleSheet.create({
   cardLeft: { marginRight: SIZES.xs },
   cardRight: { marginLeft: SIZES.xs },
   footerLoader: { padding: SIZES.lg, alignItems: 'center' },
+  demoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#E8EAF6',
+    paddingHorizontal: SIZES.md,
+    paddingVertical: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  demoBannerText: { fontSize: 12, color: COLORS.primary, flex: 1 },
 });

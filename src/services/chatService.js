@@ -36,35 +36,41 @@ export async function getOrCreateChat({ listingId, listingTitle, buyerId, buyerN
 
 // Real-time listener for all chats belonging to a user
 export function subscribeToMyChats(userId, onUpdate) {
-  const q = query(
-    collection(db, 'chats'),
-    where('buyerId', '==', userId),
-    orderBy('lastMessageTime', 'desc'),
-  );
-  const q2 = query(
-    collection(db, 'chats'),
-    where('sellerId', '==', userId),
-    orderBy('lastMessageTime', 'desc'),
-  );
+  // No orderBy on Firestore to avoid requiring a composite index — sort client-side
+  const q = query(collection(db, 'chats'), where('buyerId', '==', userId));
+  const q2 = query(collection(db, 'chats'), where('sellerId', '==', userId));
 
   const results = {};
+  let settled1 = false;
+  let settled2 = false;
 
-  const unsub1 = onSnapshot(q, snap => {
-    snap.docs.forEach(d => { results[d.id] = { id: d.id, ...d.data() }; });
+  const emit = () => {
+    if (!settled1 || !settled2) return;
     onUpdate(Object.values(results).sort((a, b) => {
       const ta = a.lastMessageTime?.toMillis?.() ?? 0;
       const tb = b.lastMessageTime?.toMillis?.() ?? 0;
       return tb - ta;
     }));
+  };
+
+  const unsub1 = onSnapshot(q, snap => {
+    snap.docs.forEach(d => { results[d.id] = { id: d.id, ...d.data() }; });
+    settled1 = true;
+    emit();
+  }, err => {
+    console.error('Chat buyer query error:', err);
+    settled1 = true;
+    emit();
   });
 
   const unsub2 = onSnapshot(q2, snap => {
     snap.docs.forEach(d => { results[d.id] = { id: d.id, ...d.data() }; });
-    onUpdate(Object.values(results).sort((a, b) => {
-      const ta = a.lastMessageTime?.toMillis?.() ?? 0;
-      const tb = b.lastMessageTime?.toMillis?.() ?? 0;
-      return tb - ta;
-    }));
+    settled2 = true;
+    emit();
+  }, err => {
+    console.error('Chat seller query error:', err);
+    settled2 = true;
+    emit();
   });
 
   return () => { unsub1(); unsub2(); };
