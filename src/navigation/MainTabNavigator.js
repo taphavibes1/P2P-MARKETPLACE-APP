@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/home/HomeScreen';
 import ChatsListScreen from '../screens/chat/ChatsListScreen';
-import MapScreen from '../screens/placeholder/MapScreen';
+import MapScreen from '../screens/map/MapScreen';
 import ProfileScreen from '../screens/placeholder/ProfileScreen';
 import { COLORS, SIZES, SHADOWS } from '../constants/theme';
 
