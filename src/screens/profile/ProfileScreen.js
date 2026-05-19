@@ -269,8 +269,9 @@ export default function ProfileScreen({ navigation }) {
       );
       setListings(myListings);
       setPayments(paymentsWithRating);
-    } catch {
-      showToast('Could not load profile data', 'error');
+    } catch (err) {
+      console.error('loadData error:', err);
+      showToast(`Could not load profile data: ${err?.message ?? err}`, 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);

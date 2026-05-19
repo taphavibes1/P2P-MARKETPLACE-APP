@@ -80,11 +80,10 @@ export async function deleteListing(listingId) {
 }
 
 export async function fetchMyListings(userId) {
-  const q = query(
-    collection(db, 'listings'),
-    where('sellerId', '==', userId),
-    orderBy('createdAt', 'desc'),
-  );
+  // No orderBy — avoids needing a composite index; sort client-side instead
+  const q = query(collection(db, 'listings'), where('sellerId', '==', userId));
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
 }
