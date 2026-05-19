@@ -11,6 +11,7 @@ import PaymentConfirmScreen from '../screens/payment/PaymentConfirmScreen';
 import PaymentStatusScreen from '../screens/payment/PaymentStatusScreen';
 import SellerQRScreen from '../screens/payment/SellerQRScreen';
 import ScanQRScreen from '../screens/payment/ScanQRScreen';
+import EditProfileScreen from '../screens/profile/EditProfileScreen';
 import LoadingScreen from '../components/common/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
@@ -35,6 +36,7 @@ export default function RootNavigator() {
       <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} />
       <Stack.Screen name="SellerQR" component={SellerQRScreen} />
       <Stack.Screen name="ScanQR" component={ScanQRScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 }

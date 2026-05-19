@@ -35,4 +35,6 @@ A hyper-local P2P student marketplace for UNIBEN Ugbowo students in Benin City, 
 - [x] Step 5: Chat system
 - [x] Step 6: Map with safe zones
 - [x] Step 7: Escrow payment flow + QR
-- [ ] Step 8: Profile + ratings
+- [x] Step 8: Profile + ratings
+
+## ✅ All steps complete — app is fully built!

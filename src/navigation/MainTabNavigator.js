@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/home/HomeScreen';
 import ChatsListScreen from '../screens/chat/ChatsListScreen';
 import MapScreen from '../screens/map/MapScreen';
-import ProfileScreen from '../screens/placeholder/ProfileScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
 import { COLORS, SIZES, SHADOWS } from '../constants/theme';
 
 const Tab = createBottomTabNavigator();
