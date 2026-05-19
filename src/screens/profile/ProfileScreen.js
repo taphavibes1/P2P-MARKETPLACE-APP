@@ -14,6 +14,8 @@ import { useToast } from '../../hooks/useToast';
 import EmptyState from '../../components/common/EmptyState';
 import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
 import { VERIFICATION_STATUS, LISTING_STATUS, PAYMENT_STATUS } from '../../constants';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
 // ─── Star Picker ─────────────────────────────────────────────────────────────
 function StarPicker({ value, onChange, size = 32 }) {
@@ -427,6 +429,36 @@ export default function ProfileScreen({ navigation }) {
             )}
           </TouchableOpacity>
 
+          {!isVerified && (
+            <TouchableOpacity
+              style={styles.selfVerifyBtn}
+              onPress={() =>
+                Alert.alert(
+                  'Self-Verify (Dev)',
+                  'Mark your account as verified without uploading a student ID. For testing only.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Verify Me',
+                      onPress: async () => {
+                        try {
+                          await updateDoc(doc(db, 'users', user.uid), { verificationStatus: 'verified' });
+                          await refreshProfile();
+                          showToast('Account verified!', 'success');
+                        } catch (e) {
+                          showToast(`Failed: ${e?.message ?? e}`, 'error');
+                        }
+                      },
+                    },
+                  ]
+                )
+              }
+            >
+              <Ionicons name="shield-checkmark-outline" size={12} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.selfVerifyText}>Self-Verify (Dev)</Text>
+            </TouchableOpacity>
+          )}
+
           {/* Stats */}
           <View style={styles.statsRow}>
             <View style={styles.stat}>
@@ -576,6 +608,15 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 22, fontWeight: '800', color: '#FFF', marginTop: 4 },
   dept: { fontSize: 14, color: 'rgba(255,255,255,0.75)' },
+  selfVerifyBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    alignSelf: 'flex-start',
+    paddingHorizontal: SIZES.sm, paddingVertical: 4,
+    borderRadius: SIZES.borderRadiusFull,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
+  },
+  selfVerifyText: { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
   verBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: SIZES.md, paddingVertical: 5,

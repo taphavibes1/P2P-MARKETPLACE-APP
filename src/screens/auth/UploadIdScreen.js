@@ -150,6 +150,41 @@ export default function UploadIdScreen({ navigation }) {
         <TouchableOpacity style={styles.skipBtn} onPress={() => navigation.replace('MainTabs')}>
           <Text style={styles.skipText}>Skip for now</Text>
         </TouchableOpacity>
+
+        <View style={styles.devBox}>
+          <Text style={styles.devTitle}>Testing / Dev Mode</Text>
+          <Text style={styles.devDesc}>Skip the photo upload and verify yourself instantly.</Text>
+          <TouchableOpacity
+            style={styles.devBtn}
+            onPress={() => {
+              Alert.alert(
+                'Self-Verify Account',
+                'This will mark your account as verified without uploading a student ID. Use this for testing only.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Verify Me',
+                    onPress: async () => {
+                      try {
+                        await updateDoc(doc(db, 'users', user.uid), {
+                          verificationStatus: 'verified',
+                        });
+                        await refreshProfile();
+                        showToast('Account verified!', 'success');
+                        setTimeout(() => navigation.replace('MainTabs'), 1000);
+                      } catch (e) {
+                        showToast(`Failed: ${e?.message ?? e}`, 'error');
+                      }
+                    },
+                  },
+                ]
+              );
+            }}
+          >
+            <Ionicons name="shield-checkmark-outline" size={16} color={COLORS.primary} />
+            <Text style={styles.devBtnText}>Self-Verify (Dev)</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} onHide={hideToast} />
     </SafeAreaView>
@@ -203,4 +238,28 @@ const styles = StyleSheet.create({
   submitBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
   skipBtn: { alignItems: 'center', marginTop: SIZES.md, padding: SIZES.md },
   skipText: { color: COLORS.textSecondary, fontSize: 14 },
+  devBox: {
+    marginTop: SIZES.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: SIZES.borderRadius,
+    borderStyle: 'dashed',
+    padding: SIZES.md,
+    alignItems: 'center',
+    gap: 6,
+  },
+  devTitle: { fontSize: 12, fontWeight: '700', color: COLORS.textSecondary },
+  devDesc: { fontSize: 12, color: COLORS.textDisabled, textAlign: 'center' },
+  devBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: SIZES.borderRadiusFull,
+    paddingHorizontal: SIZES.md,
+    paddingVertical: 8,
+    marginTop: 4,
+  },
+  devBtnText: { color: COLORS.primary, fontWeight: '600', fontSize: 13 },
 });
