@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Ugbowo Market",
+    "slug": "ugbowo-market",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#1A237E"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.ugbowomarket.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Used to scan QR codes and take listing photos",
+        "NSLocationWhenInUseUsageDescription": "Used to verify you are in the Ugbowo area",
+        "NSPhotoLibraryUsageDescription": "Used to upload listing photos"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1A237E"
+      },
+      "package": "com.ugbowomarket.app",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-barcode-scanner",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Used to verify you are in the Ugbowo campus area"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Used to upload listing photos",
+          "cameraPermission": "Used to take listing photos"
+        }
+      ]
+    ]
+  }
+}
