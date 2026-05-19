@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, Image, StyleSheet,
-  ActivityIndicator, ScrollView,
+  ActivityIndicator, ScrollView, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -35,7 +35,7 @@ export default function UploadIdScreen({ navigation }) {
       : await ImagePicker.launchImageLibraryAsync({
           quality: 0.8,
           allowsEditing: true,
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: ['images'],
         });
 
     if (!result.canceled) {
@@ -63,7 +63,36 @@ export default function UploadIdScreen({ navigation }) {
       showToast('Student ID submitted! We will review it shortly.', 'success');
       setTimeout(() => navigation.replace('MainTabs'), 2000);
     } catch (err) {
-      showToast('Upload failed. Please try again.', 'error');
+      console.error('Upload error:', err);
+
+      // Storage not enabled or rules blocking — offer to save without photo
+      if (err?.code?.includes('storage') || err?.message?.includes('storage')) {
+        Alert.alert(
+          'Storage Not Set Up',
+          'Firebase Storage is not enabled for this project.\n\nTo fix this:\n1. Go to Firebase Console\n2. Click "Storage" in the left menu\n3. Click "Get started"\n\nFor now, your verification request will be saved without the photo.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Submit Without Photo',
+              onPress: async () => {
+                try {
+                  await updateDoc(doc(db, 'users', user.uid), {
+                    studentIdImageUrl: '',
+                    verificationStatus: 'pending',
+                  });
+                  await refreshProfile();
+                  showToast('Verification request saved!', 'success');
+                  setTimeout(() => navigation.replace('MainTabs'), 1500);
+                } catch (e) {
+                  showToast('Could not save. Check Firestore is enabled.', 'error');
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        showToast(`Upload failed: ${err?.message ?? 'Unknown error'}`, 'error');
+      }
     } finally {
       setUploading(false);
     }
