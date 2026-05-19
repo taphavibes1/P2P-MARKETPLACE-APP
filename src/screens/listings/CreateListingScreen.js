@@ -177,7 +177,7 @@ export default function CreateListingScreen({ navigation }) {
     <SafeAreaView style={styles.safe}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Top bar */}
         <View style={styles.topBar}>
