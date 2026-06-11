@@ -13,6 +13,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [profileError, setProfileError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,9 +36,29 @@ export function AuthProvider({ children }) {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setUserProfile({ id: uid, ...docSnap.data() });
+      } else {
+        // Profile doc missing (e.g. registration write failed) — recreate it
+        const firebaseUser = auth.currentUser;
+        const fallback = {
+          name: firebaseUser?.displayName || firebaseUser?.email?.split('@')[0] || 'User',
+          email: firebaseUser?.email || '',
+          phone: '',
+          department: 'Other',
+          studentIdNumber: '',
+          studentIdImageUrl: '',
+          verificationStatus: 'pending',
+          rating: 0,
+          totalRatings: 0,
+          totalSales: 0,
+          isAdmin: false,
+          createdAt: serverTimestamp(),
+        };
+        await setDoc(docRef, fallback);
+        setUserProfile({ id: uid, ...fallback });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setProfileError(error?.code || error?.message || 'unknown');
     }
   };
 
@@ -76,7 +97,7 @@ export function AuthProvider({ children }) {
   const refreshProfile = () => fetchUserProfile(user?.uid);
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, login, register, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, userProfile, profileError, loading, login, register, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

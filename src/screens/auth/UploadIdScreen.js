@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, Image, StyleSheet,
-  ActivityIndicator, ScrollView,
+  ActivityIndicator, ScrollView, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -35,7 +35,7 @@ export default function UploadIdScreen({ navigation }) {
       : await ImagePicker.launchImageLibraryAsync({
           quality: 0.8,
           allowsEditing: true,
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: ['images'],
         });
 
     if (!result.canceled) {
@@ -63,7 +63,36 @@ export default function UploadIdScreen({ navigation }) {
       showToast('Student ID submitted! We will review it shortly.', 'success');
       setTimeout(() => navigation.replace('MainTabs'), 2000);
     } catch (err) {
-      showToast('Upload failed. Please try again.', 'error');
+      console.error('Upload error:', err);
+
+      // Storage not enabled or rules blocking — offer to save without photo
+      if (err?.code?.includes('storage') || err?.message?.includes('storage')) {
+        Alert.alert(
+          'Storage Not Set Up',
+          'Firebase Storage is not enabled for this project.\n\nTo fix this:\n1. Go to Firebase Console\n2. Click "Storage" in the left menu\n3. Click "Get started"\n\nFor now, your verification request will be saved without the photo.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Submit Without Photo',
+              onPress: async () => {
+                try {
+                  await updateDoc(doc(db, 'users', user.uid), {
+                    studentIdImageUrl: '',
+                    verificationStatus: 'pending',
+                  });
+                  await refreshProfile();
+                  showToast('Verification request saved!', 'success');
+                  setTimeout(() => navigation.replace('MainTabs'), 1500);
+                } catch (e) {
+                  showToast('Could not save. Check Firestore is enabled.', 'error');
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        showToast(`Upload failed: ${err?.message ?? 'Unknown error'}`, 'error');
+      }
     } finally {
       setUploading(false);
     }
@@ -121,6 +150,41 @@ export default function UploadIdScreen({ navigation }) {
         <TouchableOpacity style={styles.skipBtn} onPress={() => navigation.replace('MainTabs')}>
           <Text style={styles.skipText}>Skip for now</Text>
         </TouchableOpacity>
+
+        <View style={styles.devBox}>
+          <Text style={styles.devTitle}>Testing / Dev Mode</Text>
+          <Text style={styles.devDesc}>Skip the photo upload and verify yourself instantly.</Text>
+          <TouchableOpacity
+            style={styles.devBtn}
+            onPress={() => {
+              Alert.alert(
+                'Self-Verify Account',
+                'This will mark your account as verified without uploading a student ID. Use this for testing only.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Verify Me',
+                    onPress: async () => {
+                      try {
+                        await updateDoc(doc(db, 'users', user.uid), {
+                          verificationStatus: 'verified',
+                        });
+                        await refreshProfile();
+                        showToast('Account verified!', 'success');
+                        setTimeout(() => navigation.replace('MainTabs'), 1000);
+                      } catch (e) {
+                        showToast(`Failed: ${e?.message ?? e}`, 'error');
+                      }
+                    },
+                  },
+                ]
+              );
+            }}
+          >
+            <Ionicons name="shield-checkmark-outline" size={16} color={COLORS.primary} />
+            <Text style={styles.devBtnText}>Self-Verify (Dev)</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} onHide={hideToast} />
     </SafeAreaView>
@@ -174,4 +238,28 @@ const styles = StyleSheet.create({
   submitBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
   skipBtn: { alignItems: 'center', marginTop: SIZES.md, padding: SIZES.md },
   skipText: { color: COLORS.textSecondary, fontSize: 14 },
+  devBox: {
+    marginTop: SIZES.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: SIZES.borderRadius,
+    borderStyle: 'dashed',
+    padding: SIZES.md,
+    alignItems: 'center',
+    gap: 6,
+  },
+  devTitle: { fontSize: 12, fontWeight: '700', color: COLORS.textSecondary },
+  devDesc: { fontSize: 12, color: COLORS.textDisabled, textAlign: 'center' },
+  devBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: SIZES.borderRadiusFull,
+    paddingHorizontal: SIZES.md,
+    paddingVertical: 8,
+    marginTop: 4,
+  },
+  devBtnText: { color: COLORS.primary, fontWeight: '600', fontSize: 13 },
 });
